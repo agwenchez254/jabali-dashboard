@@ -12,14 +12,14 @@ import { Empty, PageHeader, StatusBadge } from "@/components/shared";
 
 function Stat({ label, value, sub, icon: Icon }: { label: string; value: string; sub: string; icon: typeof Banknote }) {
   return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="gap-5">
+      <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardDescription>{label}</CardDescription>
-        <Icon className="size-4 text-muted-foreground" />
+        <Icon className="size-4 text-muted-foreground" strokeWidth={1.5} />
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold tabular-nums">{value}</p>
-        <p className="text-xs text-muted-foreground">{sub}</p>
+        <p className="text-3xl font-medium tracking-tight tabular-nums">{value}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{sub}</p>
       </CardContent>
     </Card>
   );
@@ -35,12 +35,12 @@ export default function Dashboard() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-48" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="h-28" />
+            <Skeleton key={i} className="h-32 rounded-2xl" />
           ))}
         </div>
-        <Skeleton className="h-72" />
+        <Skeleton className="h-72 rounded-2xl" />
       </div>
     );
   }
@@ -51,14 +51,14 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader title={`Welcome back${user ? ", " + user.name.split(" ")[0] : ""}`} description="Here is how the store is doing." />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Revenue today" value={kes(data.sales.today.revenue)} sub={`${data.sales.today.orders} orders`} icon={Banknote} />
         <Stat label="Last 7 days" value={kes(data.sales.last7Days.revenue)} sub={`${data.sales.last7Days.orders} orders`} icon={ShoppingCart} />
         <Stat label="Last 30 days" value={kes(data.sales.last30Days.revenue)} sub={`${data.sales.last30Days.orders} orders`} icon={PackageCheck} />
         <Stat label="Needs attention" value={String(pending)} sub={`${data.lowStock?.count ?? 0} low-stock variants`} icon={AlertTriangle} />
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Revenue, last 30 days</CardTitle>
@@ -68,15 +68,15 @@ export default function Dashboard() {
               <AreaChart data={chart} margin={{ left: 0, right: 8, top: 4, bottom: 0 }}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.14} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} interval="preserveStartEnd" minTickGap={24} />
-                <YAxis tickLine={false} axisLine={false} fontSize={12} width={48} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : String(v))} />
-                <Tooltip formatter={(v) => kes(Number(v))} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8 }} />
-                <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#rev)" />
+                <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="2 4" />
+                <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} tick={{ fill: "var(--muted-foreground)" }} interval="preserveStartEnd" minTickGap={24} />
+                <YAxis tickLine={false} axisLine={false} fontSize={12} tick={{ fill: "var(--muted-foreground)" }} width={48} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : String(v))} />
+                <Tooltip formatter={(v) => kes(Number(v))} contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 13 }} />
+                <Area type="monotone" dataKey="revenue" stroke="var(--chart-1)" strokeWidth={1.5} fill="url(#rev)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -97,7 +97,7 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Recent orders</CardTitle>
@@ -144,9 +144,9 @@ export default function Dashboard() {
             {!data.lowStock?.items.length ? (
               <Empty>Everything is well stocked.</Empty>
             ) : (
-              <ul className="divide-y">
+              <ul className="divide-y divide-border/60">
                 {data.lowStock.items.slice(0, 6).map((i) => (
-                  <li key={i.variantId} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <li key={i.variantId} className="flex items-center justify-between gap-3 py-3 text-sm">
                     <span className="min-w-0">
                       <Link to="/inventory" className="block truncate font-medium hover:underline">
                         {i.productName}
