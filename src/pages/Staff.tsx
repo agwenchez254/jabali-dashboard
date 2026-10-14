@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,49 @@ import { useCreateStaffMutation, useGetRolesQuery, useGetStaffQuery, useUpdateSt
 import { useCan } from "@/store/hooks";
 import { dateTime } from "@/lib/format";
 import { PageHeader, StatusBadge, TableSkeleton, run } from "@/components/shared";
+
+interface Role {
+  id: string;
+  name: string;
+  description?: string | null;
+  permissions: string[];
+  staffCount?: number;
+}
+
+const SHOWN = 8;
+
+function RoleCard({ role: r }: { role: Role }) {
+  const name = r.name.replace("_", " ");
+  const resources = new Set(r.permissions.map((p) => p.split(":")[0])).size;
+  return (
+    <div className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-chart-1/40 hover:shadow-xl hover:shadow-chart-1/10 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <div className="flex items-start justify-between gap-4 bg-linear-to-b from-chart-1/10 to-transparent p-6 pb-5">
+        <div className="flex min-w-0 items-center gap-3.5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-base font-medium uppercase text-primary-foreground">{name.charAt(0)}</span>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-medium capitalize tracking-tight">{name}</h3>
+            <p className="text-sm text-muted-foreground">{resources} {resources === 1 ? "area" : "areas"} of access</p>
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-3xl font-medium leading-none tracking-tight tabular-nums">{r.staffCount ?? 0}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">staff</p>
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col gap-4 px-6 pb-6">
+        {r.description && <p className="text-sm leading-relaxed text-muted-foreground">{r.description}</p>}
+        <div className="mt-auto flex flex-wrap gap-1.5">
+          {r.permissions.slice(0, SHOWN).map((p) => (
+            <Badge key={p} variant="secondary" className="font-mono text-[11px] font-normal">{p}</Badge>
+          ))}
+          {r.permissions.length > SHOWN && (
+            <Badge variant="outline" className="text-[11px] font-normal text-muted-foreground" title={r.permissions.slice(SHOWN).join(", ")}>+{r.permissions.length - SHOWN} more</Badge>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Staff() {
   const canWrite = useCan("staff:write");
@@ -33,7 +75,7 @@ export default function Staff() {
       {isFetching && !staff ? (
         <TableSkeleton rows={4} />
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-2xl border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -77,21 +119,10 @@ export default function Staff() {
         </div>
       )}
 
-      <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <h2 className="mb-4 mt-12 text-lg font-medium tracking-tight">Roles</h2>
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {roles.map((r) => (
-          <Card key={r.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-base capitalize">
-                {r.name.replace("_", " ")} <Badge variant="outline">{r.staffCount ?? 0} staff</Badge>
-              </CardTitle>
-              <CardDescription>{r.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-1">
-              {r.permissions.map((p) => (
-                <Badge key={p} variant="secondary" className="font-mono text-[10px] font-normal">{p}</Badge>
-              ))}
-            </CardContent>
-          </Card>
+          <RoleCard key={r.id} role={r} />
         ))}
       </div>
 

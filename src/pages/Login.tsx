@@ -2,7 +2,6 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -37,15 +36,13 @@ export default function Login() {
   };
 
   return (
-    <div className="relative grid min-h-dvh place-items-center bg-muted/40 p-4">
+    <div className="relative grid min-h-dvh place-items-center bg-background p-4">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm gap-8 py-10">
         <CardHeader className="items-center text-center">
-          <span className="mb-2 grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <BarChart3 className="size-5" />
-          </span>
+          <span className="mb-3 grid size-11 place-items-center rounded-xl bg-primary text-lg font-medium text-primary-foreground">J</span>
           <CardTitle className="text-xl">Jabali Admin</CardTitle>
           <CardDescription>Sign in to manage your store</CardDescription>
         </CardHeader>
@@ -66,7 +63,7 @@ export default function Login() {
                 {errorMessage(error)}
               </p>
             )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>

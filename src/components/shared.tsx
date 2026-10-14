@@ -9,10 +9,10 @@ import { errorMessage } from "@/api/baseApi";
 
 export function PageHeader({ title, description, children }: { title: string; description?: string; children?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
+        {description && <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>}
       </div>
       {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
@@ -20,18 +20,18 @@ export function PageHeader({ title, description, children }: { title: string; de
 }
 
 const tone: Record<string, string> = {
-  active: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  live: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  published: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  paid: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  delivered: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  pending: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  draft: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  scheduled: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
-  packed: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
-  shipped: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
-  cancelled: "bg-red-500/15 text-red-700 dark:text-red-400",
-  refunded: "bg-red-500/15 text-red-700 dark:text-red-400",
+  active: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+  live: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+  published: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+  paid: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+  delivered: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+  pending: "bg-amber-500/10 text-amber-800 dark:text-amber-300",
+  draft: "bg-amber-500/10 text-amber-800 dark:text-amber-300",
+  scheduled: "bg-sky-500/10 text-sky-800 dark:text-sky-300",
+  packed: "bg-sky-500/10 text-sky-800 dark:text-sky-300",
+  shipped: "bg-sky-500/10 text-sky-800 dark:text-sky-300",
+  cancelled: "bg-red-500/10 text-red-800 dark:text-red-300",
+  refunded: "bg-red-500/10 text-red-800 dark:text-red-300",
   expired: "bg-muted text-muted-foreground",
   paused: "bg-muted text-muted-foreground",
   archived: "bg-muted text-muted-foreground",

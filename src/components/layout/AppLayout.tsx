@@ -1,6 +1,6 @@
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
-import { BarChart3, ChevronsUpDown, ClipboardList, FileText, Gift, History, ImageIcon, LayoutDashboard, LogOut, Moon, Package, Settings, ShoppingBag, Sun, Tag, Truck, User, Users, Warehouse } from "lucide-react";
+import { ChevronsUpDown, ClipboardList, FileText, Gift, History, ImageIcon, LayoutDashboard, LogOut, Moon, Package, Settings, ShoppingBag, Sun, Tag, Truck, User, Users, Warehouse } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -56,12 +56,10 @@ const groups: { label: string; items: NavItem[] }[] = [
 
 function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2 px-2 py-1.5">
-      <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-        <BarChart3 className="size-4" />
-      </span>
-      <span className="text-base font-semibold tracking-tight">Jabali</span>
-      <span className="text-xs text-muted-foreground">Admin</span>
+    <Link to="/" className="flex items-center gap-2.5 px-2 py-2">
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-medium text-primary-foreground">J</span>
+      <span className="text-base font-medium tracking-tight group-data-[collapsible=icon]:hidden">Jabali</span>
+      <span className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">Admin</span>
     </Link>
   );
 }
@@ -203,7 +201,7 @@ export function AppLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/90 px-4 backdrop-blur">
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur-md md:px-8">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mx-1 h-5" />
           <div className="ml-auto flex items-center gap-1">
@@ -211,7 +209,7 @@ export function AppLayout() {
             <UserMenu variant="header" />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6">
+        <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 py-8 md:px-8 md:py-10">
           <Outlet />
         </main>
       </SidebarInset>
