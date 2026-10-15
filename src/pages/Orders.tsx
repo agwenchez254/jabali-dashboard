@@ -167,6 +167,7 @@ function OrderSheet({ id, onClose }: { id: string | null; onClose: () => void })
               {o.discount > 0 && <div className="flex justify-between"><dt className="text-muted-foreground">Discount</dt><dd>-{kes(o.discount)}</dd></div>}
               <div className="flex justify-between"><dt className="text-muted-foreground">Delivery</dt><dd>{kes(o.deliveryFee)}</dd></div>
               <div className="flex justify-between text-base font-semibold"><dt>Total</dt><dd>{kes(o.total)}</dd></div>
+              {o.vat && <div className="flex justify-between text-muted-foreground"><dt>incl. VAT ({o.vat.ratePercent}%)</dt><dd>{kes(o.vat.amount)}</dd></div>}
             </dl>
 
             {canWrite && NEXT[o.status].length > 0 && (

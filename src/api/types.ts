@@ -174,6 +174,8 @@ export interface OrderDetail extends OrderRow {
   deliveryFee: number;
   address?: string | null;
   eta?: string | null;
+  /** VAT included in the total, fixed when the order was placed; null when VAT was off. */
+  vat?: { ratePercent: number; amount: number; net: number } | null;
   lines: {
     id: string;
     name: string;
