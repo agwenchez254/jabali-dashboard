@@ -11,6 +11,7 @@ import { useCan } from "@/store/hooks";
 import { toast } from "sonner";
 import { errorMessage } from "@/api/baseApi";
 import { PageHeader } from "@/components/shared";
+import VatSettingsCard from "./VatSettingsCard";
 
 const METHODS = [
   { id: "mpesa", label: "M-Pesa" },
@@ -85,6 +86,8 @@ export default function SiteSettings() {
             ))}
           </CardContent>
         </Card>
+
+        <VatSettingsCard />
 
         {canWrite && <div><Button onClick={saveAll} disabled={saving}>{saving ? "Saving..." : "Save settings"}</Button></div>}
       </div>
