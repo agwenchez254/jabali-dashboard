@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Download, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,24 +14,18 @@ import { errorMessage } from "@/api/baseApi";
 import type { OrderStatus } from "@/api/types";
 import { useCan } from "@/store/hooks";
 import { dateTime, downloadText, kes } from "@/lib/format";
-import { ConfirmButton, Empty, PageHeader, Pager, StatusBadge, TableSkeleton, run, useDebounced } from "@/components/shared";
+import { OrderProgress } from "@/components/OrderProgress";
+import { Empty, PageHeader, Pager, StatusBadge, TableSkeleton, run, useDebounced } from "@/components/shared";
 
 const ALL = "all";
 const STATUSES: OrderStatus[] = ["pending", "paid", "packed", "shipped", "delivered", "cancelled", "refunded"];
-const NEXT: Record<OrderStatus, OrderStatus[]> = {
-  pending: ["paid", "cancelled"],
-  paid: ["packed", "cancelled"],
-  packed: ["shipped", "cancelled"],
-  shipped: ["delivered"],
-  delivered: [],
-  cancelled: [],
-  refunded: [],
-};
 
 export default function Orders() {
   const [status, setStatus] = useState(ALL);
   const [method, setMethod] = useState(ALL);
-  const [q, setQ] = useState("");
+  const [params] = useSearchParams();
+  // Other pages link here with ?q=<order number>.
+  const [q, setQ] = useState(params.get("q") ?? "");
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string | null>(null);
   const dq = useDebounced(q);
@@ -147,6 +142,12 @@ function OrderSheet({ id, onClose }: { id: string | null; onClose: () => void })
             <div>
               <p className="font-medium">{o.customer?.name}</p>
               <p className="text-muted-foreground">{o.customer?.phone}</p>
+              {(o.contactName || o.contactPhone) && (
+                <p className="text-muted-foreground">Deliver to: {[o.contactName, o.contactPhone].filter(Boolean).join(", ")}</p>
+              )}
+              {o.payments?.[o.payments.length - 1]?.payerPhone && o.paymentMethod !== "cod" && (
+                <p className="text-muted-foreground">Paid from: {o.payments[o.payments.length - 1].payerPhone}</p>
+              )}
               <p className="text-muted-foreground">{o.method === "pickup" ? "Pickup" : [o.address, o.county].filter(Boolean).join(", ")}</p>
             </div>
             <Separator />
@@ -170,32 +171,15 @@ function OrderSheet({ id, onClose }: { id: string | null; onClose: () => void })
               {o.vat && <div className="flex justify-between text-muted-foreground"><dt>incl. VAT ({o.vat.ratePercent}%)</dt><dd>{kes(o.vat.amount)}</dd></div>}
             </dl>
 
-            {canWrite && NEXT[o.status].length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {NEXT[o.status].map((to) => (
-                  <Button key={to} size="sm" variant={to === "cancelled" ? "outline" : "default"} className="capitalize" disabled={isLoading} onClick={() => run(transition({ id: o.id, to }), `Order marked ${to}`)}>
-                    Mark {to}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {canRefund && ["paid", "packed", "shipped", "delivered"].includes(o.status) && (
-              <ConfirmButton title="Refund this order?" description={`This refunds ${kes(o.total)} and releases the order.`} onConfirm={() => run(refund({ id: o.id }), "Order refunded")} trigger={<Button size="sm" variant="outline" className="text-destructive">Refund</Button>} />
-            )}
-
-            {o.events && o.events.length > 0 && (
-              <>
-                <Separator />
-                <ol className="space-y-2">
-                  {o.events.map((e) => (
-                    <li key={e.id} className="flex justify-between gap-3 text-muted-foreground">
-                      <span className="capitalize">{e.type.replace("_", " ")}{e.note ? `: ${e.note}` : ""}</span>
-                      <span className="shrink-0">{dateTime(e.at ?? e.createdAt)}</span>
-                    </li>
-                  ))}
-                </ol>
-              </>
-            )}
+            <Separator />
+            <OrderProgress
+              order={o}
+              canWrite={canWrite}
+              canRefund={canRefund}
+              busy={isLoading}
+              onMove={(to) => void run(transition({ id: o.id, to: to as OrderStatus }), `Order marked ${to}`)}
+              onRefund={() => void run(refund({ id: o.id }), "Order refunded")}
+            />
           </div>
         )}
       </SheetContent>

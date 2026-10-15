@@ -174,6 +174,9 @@ export interface OrderDetail extends OrderRow {
   deliveryFee: number;
   address?: string | null;
   eta?: string | null;
+  /** Who receives the order, when that is not the account holder. */
+  contactName?: string | null;
+  contactPhone?: string | null;
   /** VAT included in the total, fixed when the order was placed; null when VAT was off. */
   vat?: { ratePercent: number; amount: number; net: number } | null;
   lines: {
@@ -185,7 +188,7 @@ export interface OrderDetail extends OrderRow {
     qty: number;
     gift?: unknown;
   }[];
-  payments?: { id: string; provider: string; status: string; amount: number; providerRef?: string | null }[];
+  payments?: { id: string; provider: string; status: string; amount: number; providerRef?: string | null; payerPhone?: string | null }[];
   events?: { id: string; type: string; note?: string | null; at?: string; createdAt?: string }[];
   [key: string]: unknown;
 }

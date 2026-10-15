@@ -8,6 +8,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
 import "./index.css";
+import { applyTheme, loadTheme } from "@/lib/themes";
+
+// Apply the saved theme before first paint so there is no flash of the default colours.
+applyTheme(loadTheme());
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -27,7 +27,7 @@ export default function SiteSettings() {
   const [whatsapp, setWhatsapp] = useState("");
   const [pickup, setPickup] = useState("");
   const [threshold, setThreshold] = useState("");
-  const [bar, setBar] = useState({ enabled: false, text: "" });
+  const [bar, setBar] = useState({ enabled: false, text: "", link: "", linkLabel: "" });
   const [methods, setMethods] = useState<string[]>([]);
 
   useEffect(() => {
@@ -35,8 +35,8 @@ export default function SiteSettings() {
     setWhatsapp(String(data.whatsappNumber ?? ""));
     setPickup(String(data.pickupAddress ?? ""));
     setThreshold(data.freeDeliveryThreshold != null ? String(data.freeDeliveryThreshold) : "");
-    const b = data.announcementBar as { enabled?: boolean; text?: string } | undefined;
-    setBar({ enabled: !!b?.enabled, text: b?.text ?? "" });
+    const b = data.announcementBar as { enabled?: boolean; text?: string; link?: string; linkLabel?: string } | undefined;
+    setBar({ enabled: !!b?.enabled, text: b?.text ?? "", link: b?.link ?? "", linkLabel: b?.linkLabel ?? "" });
     setMethods((data.paymentMethods as string[] | undefined) ?? []);
   }, [data]);
 
@@ -47,7 +47,7 @@ export default function SiteSettings() {
       await save({ key: "whatsappNumber", value: whatsapp.trim() }).unwrap();
       await save({ key: "pickupAddress", value: pickup.trim() }).unwrap();
       await save({ key: "freeDeliveryThreshold", value: threshold ? Number(threshold) : null }).unwrap();
-      await save({ key: "announcementBar", value: { enabled: bar.enabled, text: bar.text.trim() } }).unwrap();
+      await save({ key: "announcementBar", value: { enabled: bar.enabled, text: bar.text.trim(), ...(bar.link.trim() && { link: bar.link.trim(), linkLabel: bar.linkLabel.trim() || "Shop now" }) } }).unwrap();
       await save({ key: "paymentMethods", value: methods }).unwrap();
       toast.success("Settings saved");
     } catch (e) {
@@ -62,10 +62,14 @@ export default function SiteSettings() {
       <PageHeader title="Site settings" description="Store-wide options used by the storefront and checkout." />
       <div className="grid max-w-3xl gap-4">
         <Card>
-          <CardHeader><CardTitle className="text-base">Announcement bar</CardTitle><CardDescription>A banner at the top of every storefront page.</CardDescription></CardHeader>
+          <CardHeader><CardTitle className="text-base">Announcement bar</CardTitle><CardDescription>A promotion strip at the top of every storefront page. Add a link for a call-to-action button.</CardDescription></CardHeader>
           <CardContent className="space-y-3">
             <label className="flex items-center justify-between text-sm">Show the banner <Switch checked={bar.enabled} disabled={!canWrite} onCheckedChange={(enabled) => setBar((b) => ({ ...b, enabled }))} /></label>
             <Textarea rows={2} value={bar.text} readOnly={!canWrite} onChange={(e) => setBar((b) => ({ ...b, text: e.target.value }))} placeholder="Free delivery in Nairobi on orders above KES 10,000" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2"><Label htmlFor="bar-link">Button link</Label><Input id="bar-link" value={bar.link} readOnly={!canWrite} onChange={(e) => setBar((b) => ({ ...b, link: e.target.value }))} placeholder="/shop or https://..." /></div>
+              <div className="space-y-2"><Label htmlFor="bar-label">Button text</Label><Input id="bar-label" maxLength={40} value={bar.linkLabel} readOnly={!canWrite} onChange={(e) => setBar((b) => ({ ...b, linkLabel: e.target.value }))} placeholder="Shop now" /></div>
+            </div>
           </CardContent>
         </Card>
 

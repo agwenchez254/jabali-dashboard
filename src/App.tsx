@@ -10,9 +10,12 @@ const ProductEditor = lazy(() => import("@/pages/ProductEditor"));
 const Inventory = lazy(() => import("@/pages/Inventory"));
 const Media = lazy(() => import("@/pages/Media"));
 const Orders = lazy(() => import("@/pages/Orders"));
+const Customers = lazy(() => import("@/pages/Customers"));
 const Promotions = lazy(() => import("@/pages/Promotions"));
 const Delivery = lazy(() => import("@/pages/Delivery"));
 const Content = lazy(() => import("@/pages/Content"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogEditor = lazy(() => import("@/pages/BlogEditor"));
 const Testimonials = lazy(() => import("@/pages/Testimonials"));
 const Staff = lazy(() => import("@/pages/Staff"));
 const Audit = lazy(() => import("@/pages/Audit"));
@@ -36,9 +39,13 @@ export default function App() {
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="media" element={<Media />} />
                 <Route path="orders" element={<Orders />} />
+                <Route path="customers" element={<Customers />} />
                 <Route path="promotions" element={<Promotions />} />
                 <Route path="delivery" element={<Delivery />} />
                 <Route path="content" element={<Content />} />
+                <Route path="blog" element={<Blog />} />
+                <Route path="blog/new" element={<BlogEditor />} />
+                <Route path="blog/:id" element={<BlogEditor />} />
                 <Route path="testimonials" element={<Testimonials />} />
                 <Route path="staff" element={<Staff />} />
                 <Route path="audit" element={<Audit />} />

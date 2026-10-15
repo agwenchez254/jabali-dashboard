@@ -32,6 +32,22 @@ export const operationsApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ["Media"],
     }),
+    uploadMediaBatch: b.mutation<{ items: MediaItem[]; failed: { index: number; filename: string; status: number; message: string }[] }, { files: File[] }>({
+      query: ({ files }) => {
+        const body = new FormData();
+        // An alt text sent right after a file belongs to that file.
+        for (const file of files) {
+          body.append("files", file);
+          body.append("alt", file.name.replace(/\.[^.]+$/, ""));
+        }
+        return { url: "/media/batch", method: "POST", body };
+      },
+      invalidatesTags: ["Media"],
+    }),
+    deleteMediaBatch: b.mutation<{ deleted: string[]; failed: { id: string; status: number; message: string }[] }, { ids: string[] }>({
+      query: (body) => ({ url: "/media/batch/delete", method: "POST", body }),
+      invalidatesTags: ["Media"],
+    }),
     updateMedia: b.mutation<MediaItem, { id: string; alt: string }>({
       query: ({ id, ...body }) => ({ url: `/media/${id}`, method: "PATCH", body }),
       invalidatesTags: ["Media"],
@@ -52,6 +68,23 @@ export const operationsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Staff", "Role"],
     }),
     getRoles: b.query<Role[], void>({ query: () => "/roles", providesTags: ["Role"] }),
+    getPermissionCatalogue: b.query<string[], void>({
+      query: () => "/roles/permissions",
+      transformResponse: (r: { permissions: string[] }) => r.permissions,
+    }),
+    createRole: b.mutation<Role, { name: string; description?: string; permissions: string[] }>({
+      query: (body) => ({ url: "/roles", method: "POST", body }),
+      invalidatesTags: ["Role"],
+    }),
+    updateRole: b.mutation<Role, { id: string; body: { name?: string; description?: string; permissions?: string[] } }>({
+      query: ({ id, body }) => ({ url: `/roles/${id}`, method: "PATCH", body }),
+      // Staff rows show the role name, and people on this role get the new permissions at their next sign-in.
+      invalidatesTags: ["Role", "Staff"],
+    }),
+    deleteRole: b.mutation<void, string>({
+      query: (id) => ({ url: `/roles/${id}`, method: "DELETE" }),
+      invalidatesTags: ["Role"],
+    }),
 
     // Analytics and audit
     getAnalyticsSummary: b.query<AnalyticsSummary, void>({ query: () => "/analytics/summary", providesTags: ["Analytics"] }),
@@ -71,12 +104,18 @@ export const {
   useGetMediaQuery,
   useLazyGetMediaQuery,
   useUploadMediaMutation,
+  useUploadMediaBatchMutation,
+  useDeleteMediaBatchMutation,
   useUpdateMediaMutation,
   useDeleteMediaMutation,
   useGetStaffQuery,
   useCreateStaffMutation,
   useUpdateStaffMutation,
   useGetRolesQuery,
+  useGetPermissionCatalogueQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
   useGetAnalyticsSummaryQuery,
   useGetTopProductsQuery,
   useGetAuditQuery,

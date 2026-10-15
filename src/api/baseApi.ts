@@ -1,12 +1,15 @@
 import { createApi, fetchBaseQuery, type BaseQueryFn, type FetchArgs, type FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
+import { signedFetch } from "@/lib/signedFetch";
 import { loggedOut, setCredentials, type AuthState } from "@/store/authSlice";
 
 export const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:5000/api/v1";
 
-export const TAGS = ["Me", "Product", "Category", "Colour", "Inventory", "Promotion", "Order", "Block", "Testimonial", "Page", "Settings", "Zone", "Media", "Staff", "Role", "Analytics", "Audit"] as const;
+export const TAGS = ["Me", "Product", "Category", "Colour", "Inventory", "Promotion", "Order", "Customer", "Post", "Block", "Testimonial", "Page", "Settings", "Zone", "Media", "Staff", "Role", "Analytics", "Audit"] as const;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: `${API_URL}/admin`,
+  // Every request is signed so the API can tell it came from this app and was not altered or replayed.
+  fetchFn: signedFetch,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as { auth: AuthState }).auth.accessToken;
     if (token) headers.set("authorization", `Bearer ${token}`);

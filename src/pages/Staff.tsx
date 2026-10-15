@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,50 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useCreateStaffMutation, useGetRolesQuery, useGetStaffQuery, useUpdateStaffMutation } from "@/api/operations";
 import { useCan } from "@/store/hooks";
 import { dateTime } from "@/lib/format";
+import { RoleCard, type Role } from "@/components/RoleCard";
+import { RoleDialog } from "@/components/RoleDialog";
 import { PageHeader, StatusBadge, TableSkeleton, run } from "@/components/shared";
-
-interface Role {
-  id: string;
-  name: string;
-  description?: string | null;
-  permissions: string[];
-  staffCount?: number;
-}
-
-const SHOWN = 8;
-
-function RoleCard({ role: r }: { role: Role }) {
-  const name = r.name.replace("_", " ");
-  const resources = new Set(r.permissions.map((p) => p.split(":")[0])).size;
-  return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-chart-1/40 hover:shadow-xl hover:shadow-chart-1/10 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-      <div className="flex items-start justify-between gap-4 bg-linear-to-b from-chart-1/10 to-transparent p-6 pb-5">
-        <div className="flex min-w-0 items-center gap-3.5">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-base font-medium uppercase text-primary-foreground">{name.charAt(0)}</span>
-          <div className="min-w-0">
-            <h3 className="truncate text-base font-medium capitalize tracking-tight">{name}</h3>
-            <p className="text-sm text-muted-foreground">{resources} {resources === 1 ? "area" : "areas"} of access</p>
-          </div>
-        </div>
-        <div className="shrink-0 text-right">
-          <p className="text-3xl font-medium leading-none tracking-tight tabular-nums">{r.staffCount ?? 0}</p>
-          <p className="mt-1.5 text-xs text-muted-foreground">staff</p>
-        </div>
-      </div>
-      <div className="flex flex-1 flex-col gap-4 px-6 pb-6">
-        {r.description && <p className="text-sm leading-relaxed text-muted-foreground">{r.description}</p>}
-        <div className="mt-auto flex flex-wrap gap-1.5">
-          {r.permissions.slice(0, SHOWN).map((p) => (
-            <Badge key={p} variant="secondary" className="font-mono text-[11px] font-normal">{p}</Badge>
-          ))}
-          {r.permissions.length > SHOWN && (
-            <Badge variant="outline" className="text-[11px] font-normal text-muted-foreground" title={r.permissions.slice(SHOWN).join(", ")}>+{r.permissions.length - SHOWN} more</Badge>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Staff() {
   const canWrite = useCan("staff:write");
@@ -61,6 +19,8 @@ export default function Staff() {
   const { data: roles = [] } = useGetRolesQuery();
   const [update] = useUpdateStaffMutation();
   const [open, setOpen] = useState(false);
+  // Which role the dialog shows: a role, null for a new one, undefined when closed.
+  const [roleView, setRoleView] = useState<Role | null | undefined>(undefined);
 
   return (
     <>
@@ -119,12 +79,30 @@ export default function Staff() {
         </div>
       )}
 
-      <h2 className="mb-4 mt-12 text-lg font-medium tracking-tight">Roles</h2>
+      <div className="mb-4 mt-12 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-medium tracking-tight">Roles</h2>
+          <p className="text-sm text-muted-foreground">Open a role to see everything it allows{canWrite ? " and switch permissions on or off." : "."}</p>
+        </div>
+        {canWrite && (
+          <Button variant="outline" onClick={() => setRoleView(null)}>
+            <Plus /> New role
+          </Button>
+        )}
+      </div>
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {roles.map((r) => (
-          <RoleCard key={r.id} role={r} />
+          <RoleCard key={r.id} role={r} onOpen={() => setRoleView(r)} />
         ))}
       </div>
+      <RoleDialog
+        // Keyed so the form starts fresh for each role, and picks up changes from the server after a save.
+        key={roleView === undefined ? "closed" : (roleView?.id ?? "new")}
+        open={roleView !== undefined}
+        role={roleView ? (roles.find((r) => r.id === roleView.id) ?? roleView) : null}
+        canWrite={canWrite}
+        onClose={() => setRoleView(undefined)}
+      />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>{open && <AddStaff roles={roles} onClose={() => setOpen(false)} />}</DialogContent>
